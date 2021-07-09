@@ -1,13 +1,13 @@
 import telebot
 import os
 
-token = pass #reading a token from txt file
+with open('token.txt', 'r') as file:
+    token = file.read()
 
-
-bot = telebot.TeleBot("TOKEN")
+bot = telebot.TeleBot(token)
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-    bot.send_message(message.from_user.id, "Привет")
+    bot.reply_to(message, "Reply")
 
 bot.polling(none_stop=True, interval=0)
