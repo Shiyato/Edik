@@ -1,5 +1,5 @@
 from sqlalchemy.sql.expression import null
-from config_reader import db_user, db_pass, db_host, db_name
+from config_reader import db_user, db_pass, db_host, db_name, db_uri
 from sqlalchemy import create_engine, MetaData, Table, Column, String, Integer, Boolean, insert
 from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
@@ -7,10 +7,13 @@ from sqlalchemy.orm import Session
 
 
 # Connecting to database
-if db_pass == 'none':
-    engine = create_engine(f"mysql+pymysql://{db_user}@{db_host}/{db_name}")
+if db_uri == 'none':
+    if db_pass == 'none':
+        engine = create_engine(f"mysql+pymysql://{db_user}@{db_host}/{db_name}")
+    else:
+        engine = create_engine(f"mysql+pymysql://{db_user}:{db_pass}@{db_host}/{db_name}")
 else:
-    engine = create_engine(f"mysql+pymysql://{db_user}:{db_pass}@{db_host}/{db_name}")
+    engine = create_engine(db_uri)
 
 connection = engine.connect()
 DataBase = declarative_base()

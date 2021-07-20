@@ -43,7 +43,3 @@ def plans(message):
     bot.send_message(message.chat.id, "Вот список твоих планов:\n")
 
 bot.polling(none_stop=True, interval=0) #Starting the bot
-
-
-#photo = Image.open('lofi_girl.jpg')
-#bot.send_photo(message.chat.id, photo=photo, caption="")
