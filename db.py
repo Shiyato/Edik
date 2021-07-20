@@ -49,7 +49,7 @@ class PlansPoints(DataBase):
     id = Column(Integer(), primary_key=True)
     plan_id = Column(Integer(), ForeignKey("plans.id"), nullable=False, unique=True)
     number = Column(Integer(), nullable=False)
-    text = Column(String(300))
+    text = Column(String(255))
 
 class Support(DataBase):
     __tablename__ = 'support_table'
