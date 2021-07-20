@@ -1,27 +1,12 @@
+from config_reader import token
 from sqlalchemy import create_engine
 from PIL import Image
 from time import sleep
 from telebot import TeleBot, types
-import os
+import os, db
 
-with open('config.txt', 'r') as file:
-    #Set options from config.txt
-    options_list = dict()
 
-    for line in file:
-        line_name = line[:line.find(':')]
-        line_value = line[line.find(':') + 2:].rstrip('\n')
-        options_list[line_name] = line_value
-    
-    token = options_list.get('token')
-    db_pass = options_list.get('db_password')
-    db_host = options_list.get('db_host')
-    db_name = options_list.get('db_name')
-
-engine = create_engine(f"mysql+pymysql://root:{db_pass}@{db_host}/{db_name}") #Connect to DB
-
-bot = TeleBot(token)
-
+bot = TeleBot(token) # Creating a bot object
 
 
 @bot.message_handler(commands=['start'])
@@ -34,8 +19,6 @@ def start(message):
     sleep(2)
     help(message)
 
-#photo = Image.open('lofi_girl.jpg')
-#bot.send_photo(message.chat.id, photo=photo, caption="")
 
 @bot.message_handler(commands=['help', 'h'])
 def help(message):
@@ -44,32 +27,23 @@ def help(message):
 @bot.message_handler(commands=['edu', 'e'])
 def education(message):
     bot.send_message(message.chat.id, "Итак, начнём")
-
-    markup = types.ReplyKeyboardMarkup()
-
-    yes = types.KeyboardButton('Есть')
-    no = types.KeyboardButton('Нет')
-
-    markup.row(yes, no)
-
     sleep(1)
-    bot.send_message(message.chat.id, "Есть ли у тебя есть любимое дело, которому ты учишься или хотел бы научиться?", reply_markup=markup)
+    bot.send_message(message.chat.id, "Для начала вспомни то, чему ты хочешь научиться и чётко сформулируй результат которого ты хочешь достичь и за какой промежуток времени.")
 
-"""@bot.callback_query_handler(func=lambda call: True)
-def handle(call):
-    answers = {
-        "yea1": "Отлично",
-        "no1": "Хорошо, тогда выбери его!"
-    }
-    bot.send_message(call.message.chat.id, answers.get(call.data))"""
 
 @bot.message_handler(commands=['aims', 'a'])
 def aims(message):
-    pass #TODO aims edit
+    bot.send_message(message.chat.id, "Вот список твоих целей")
+
 
 @bot.message_handler(commands=['plans', 'p'])
 def plans(message):
-    pass #TODO plans edit
+    plans_list = db.session.query(db.Plans).filter(db.Plans.user_id == message.from_user.id)
+    print(plans_list)
+    bot.send_message(message.chat.id, "Вот список твоих планов:\n")
+
+bot.polling(none_stop=True, interval=0) #Starting the bot
 
 
-bot.polling(none_stop=True, interval=0) #Start the bot
+#photo = Image.open('lofi_girl.jpg')
+#bot.send_photo(message.chat.id, photo=photo, caption="")
