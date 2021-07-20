@@ -38,8 +38,7 @@ def aims(message):
 
 @bot.message_handler(commands=['plans', 'p'])
 def plans(message):
-    plans_list = db.session.query(db.Plans).filter(db.Plans.user_id == message.from_user.id)
-    print(plans_list)
+    #plans_list = db.session.query(db.Plans).filter(db.Plans.user_id == message.from_user.id)
     bot.send_message(message.chat.id, "Вот список твоих планов:\n")
 
 bot.polling(none_stop=True, interval=0) #Starting the bot
