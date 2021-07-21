@@ -3,16 +3,7 @@ from sqlalchemy import create_engine
 from PIL import Image
 from time import sleep
 from telebot import TeleBot, types
-from flask import Flask
 import os, db
-
-# Code for waking up a heroku dynos
-
-wake = Flask(__name__)
-
-@wake.route('/', methods=['GET'])
-def wake_app():
-    return "<h1>Go to @self_education_ru_bot for use the bot</h1 style='text-align:center'>"
 
 
 # Bot's message handlers
@@ -47,10 +38,13 @@ def aims(message):
 
 @bot.message_handler(commands=['plans', 'p'])
 def plans(message):
-    #plans_list = db.session.query(db.Plans).filter(db.Plans.user_id == message.from_user.id)
+    plans_list = db.session.query(db.Plans).filter(db.Plans.user_id == message.from_user.id)
     bot.send_message(message.chat.id, "Вот список твоих планов:\n")
+
+@bot.message_handler(commands=['dev'])
+def dev(message):
+    db.update_tables()
 
 
 if __name__ == '__main__':
     bot.polling(none_stop=True, interval=0) #Starting the bot
-    wake.run(host='0.0.0.0')
