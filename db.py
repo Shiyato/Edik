@@ -26,7 +26,7 @@ class Progress(DataBase):
     id = Column(Integer(), primary_key=True)
     user_id = Column(Integer(), ForeignKey("users.id"), nullable=False, unique=True)
     part_number = Column(Integer(), nullable=False, default=0)
-    edu_started = Column(Boolean(), nullable=False, default=False)
+    edu_started = Column(Boolean(), nullable=False, default=True)
 
 class Aims(DataBase):
     __tablename__ = 'aims'
