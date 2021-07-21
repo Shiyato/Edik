@@ -82,10 +82,6 @@ def plans(message):
     bot.send_message(message.chat.id, "Вот список твоих планов:\n")
     bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO education block choise
 
-@bot.message_handler(commands=['dev'])
-def dev(message):
-    db.update_tables()
-
 @bot.message_handler(func=que_handler)
 def quesion(message):
     bot.send_message(message.chat.id, "quesion")
