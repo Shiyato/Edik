@@ -23,8 +23,9 @@ def que_handler(message):
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    user_tele_id = message.from_user.id
+    """user_tele_id = message.from_user.id
     user = find_user(user_tele_id)
+
     if not user:
             user_o = db.User(tele_id=user_tele_id)
             db.session.add(user_o)
@@ -32,7 +33,7 @@ def start(message):
             user = find_user(user_tele_id)
             support = db.Support(user_id=user.id)
             db.session.add(support)
-            db.session.commit()
+            db.session.commit()"""
 
     bot.send_message(message.chat.id, "Привет, я - Эдик, бот, созданный чтобы помогать людям учиться (^_^)")
     sleep(3)
