@@ -35,7 +35,7 @@ def start(message):
             db.session.add(support)
             db.session.commit()
         except:
-            print(user, username)
+            print(user, username, message, message.from_user)
             bot.send_message(message.chat.id, "-- Ошибка сервера (T_T) --")
 
     bot.send_message(message.chat.id, "Привет, я - Эдик, бот, созданный чтобы помогать людям учиться (^_^)")
