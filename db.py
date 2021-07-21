@@ -51,7 +51,7 @@ class PlansPoints(DataBase):
 class Support(DataBase):
     __tablename__ = 'support_table'
     user_id = Column(Integer(), ForeignKey("users.id"), primary_key=True)
-    mode = Column(String(4))
+    mode = Column(String(4)) # Contains None, 'edup', 'aims' or 'plan' values
     last_quesion_id = Column(Integer())
     last_quesion_num = Column(Integer())
 

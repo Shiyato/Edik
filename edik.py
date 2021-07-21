@@ -9,8 +9,18 @@ import os, db
 # Bot's message handlers
 bot = TeleBot(token) # Creating a bot object
 
+
 @bot.message_handler(commands=['start'])
 def start(message):
+    username = message.from_user.username
+    user_id = message.from_user.id
+
+    if not db.session.query(db.User).filter(db.User.username == username).first():
+        user = db.User(username=username)
+        support = db.Support(user_id=user_id)
+        db.session.add_all([user, support])
+        db.session.commit()
+
     bot.send_message(message.chat.id, "Привет, я - Эдик, бот, созданный чтобы помогать людям учиться (^_^)")
     sleep(3)
     bot.send_message(message.chat.id, "Может быть, у тебя есть любимое дело/хобби, которым тебе нравится заниматься? Или просто хочешь стать успешнее и учиться с намного большей эффективностью?")
