@@ -14,27 +14,25 @@ def find_user(username):
 
 def que_handler(message):
     user = find_user(message.from_user.username)
-    if not user:
-        return False
-    else:
+    if user:
         user_id = user.id
         support = db.session.query(db.Support).filter(db.Support.user_id == user_id).first()
-        return support.last_quesion_id == message.message_id - 1 if support else False
+        if support: return support.last_quesion_id == message.message_id - 1
+    return False
 
 
 @bot.message_handler(commands=['start'])
 def start(message):
     username = message.from_user.username
-    user_id = find_user(username).id
-    user = db.session.query(db.User).filter(db.User.username == username).first()
-
-    print("NEW START", user)
+    user = find_user(username)
 
     if not user:
-        user = db.User(username=username)
-        support = db.Support(user_id=user_id)
-        db.session.add_all([user, support])
+        user_o = db.User(username=username)
+        db.session.add(user_o)
         db.session.commit()
+        user = find_user(username)
+        support = db.Support(user_id=user.id)
+        db.session.add(support)
 
     bot.send_message(message.chat.id, "Привет, я - Эдик, бот, созданный чтобы помогать людям учиться (^_^)")
     sleep(3)
