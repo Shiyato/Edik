@@ -9,11 +9,11 @@ import os, db
 # Bot's message handlers
 bot = TeleBot(token) # Creating a bot object
 
-def find_user(username):
-    return db.session.query(db.User).filter(db.User.username == username).first()
+def find_user(tele_id):
+    return db.session.query(db.User).filter(db.User.tele_id == tele_id).first()
 
 def que_handler(message):
-    user = find_user(message.from_user.username)
+    user = find_user(message.from_user.id)
     if user:
         user_id = user.id
         support = db.session.query(db.Support).filter(db.Support.user_id == user_id).first()
@@ -23,20 +23,16 @@ def que_handler(message):
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    username = message.from_user.username
-    user = find_user(username)
+    user_tele_id = message.from_user.id
+    user = find_user(user_tele_id)
     if not user:
-        try:
-            user_o = db.User(username=username)
+            user_o = db.User(tele_id=user_tele_id)
             db.session.add(user_o)
             db.session.commit()
-            user = find_user(username)
+            user = find_user(user_tele_id)
             support = db.Support(user_id=user.id)
             db.session.add(support)
             db.session.commit()
-        except:
-            print(user, username, message, message.from_user)
-            bot.send_message(message.chat.id, "-- Ошибка сервера (T_T) --")
 
     bot.send_message(message.chat.id, "Привет, я - Эдик, бот, созданный чтобы помогать людям учиться (^_^)")
     sleep(3)
@@ -53,8 +49,8 @@ def help(message):
 
 @bot.message_handler(commands=['edu', 'e'])
 def education(message):
-    username = message.from_user.username
-    user_id = find_user(username).id
+    user_tele_id = message.from_user.id
+    user_id = find_user(user_tele_id).id
     progress = db.session.query(db.Progress).filter(db.Progress.user_id == user_id).first()
 
     def new_edu():
@@ -79,13 +75,17 @@ def aims(message):
 
 @bot.message_handler(commands=['plans', 'p'])
 def plans(message):
-    plans_list = db.session.query(db.Plans).filter(db.Plans.user_id == find_user(message.from_user.username).id)
+    plans_list = db.session.query(db.Plans).filter(db.Plans.user_id == find_user(message.from_user.id).id)
     bot.send_message(message.chat.id, "Вот список твоих планов:\n")
 
 @bot.message_handler(func=que_handler)
 def quesion(message):
     bot.send_message(message.chat.id, "quesion")
     bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO
+
+@bot.message_handler(commands=['dev'])
+def dev(message):
+    db.update_tables
 
 if __name__ == '__main__':
     bot.polling(none_stop=True, interval=0) #Starting the bot
