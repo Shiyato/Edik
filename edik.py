@@ -33,6 +33,7 @@ def start(message):
         user = find_user(username)
         support = db.Support(user_id=user.id)
         db.session.add(support)
+        db.session.commit()
 
     bot.send_message(message.chat.id, "Привет, я - Эдик, бот, созданный чтобы помогать людям учиться (^_^)")
     sleep(3)
