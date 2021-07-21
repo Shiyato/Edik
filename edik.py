@@ -58,6 +58,7 @@ def education(message):
         bot.send_message(message.chat.id, "Итак, начнём")
         sleep(1)
         bot.send_message(message.chat.id, "Для начала, вспомни о том, чему ты хочешь научиться. ")
+        bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO education block choise
 
     if progress:
         bot.send_message(message.chat.id, f"Выбери блок о котором хочешь послушать. (Ты остановился на блоке {progress.part_number}) ")
@@ -72,12 +73,14 @@ def education(message):
 @bot.message_handler(commands=['aims', 'a'])
 def aims(message):
     bot.send_message(message.chat.id, "Вот список твоих целей")
+    bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO education block choise
 
 
 @bot.message_handler(commands=['plans', 'p'])
 def plans(message):
     plans_list = db.session.query(db.Plans).filter(db.Plans.user_id == find_user(message.from_user.id).id)
     bot.send_message(message.chat.id, "Вот список твоих планов:\n")
+    bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO education block choise
 
 @bot.message_handler(commands=['dev'])
 def dev(message):
