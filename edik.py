@@ -22,6 +22,8 @@ def start(message):
     user_id = message.from_user.id
     user = db.session.query(db.User).filter(db.User.username == username).first()
 
+    print("NEW START", user)
+
     if not user:
         user = db.User(username=username)
         support = db.Support(user_id=user_id)
@@ -71,11 +73,6 @@ def aims(message):
 def plans(message):
     plans_list = db.session.query(db.Plans).filter(db.Plans.user_id == message.from_user.id)
     bot.send_message(message.chat.id, "Вот список твоих планов:\n")
-
-@bot.message_handler(commands=['dev'])
-def dev(message):
-    db.update_tables()
-
 
 if __name__ == '__main__':
     bot.polling(none_stop=True, interval=0) #Starting the bot
