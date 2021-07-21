@@ -23,7 +23,7 @@ def que_handler(message):
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    user_tele_id = message.from_user.id
+    """user_tele_id = message.from_user.id
     user = find_user(user_tele_id)
 
     if not user:
@@ -33,7 +33,7 @@ def start(message):
             user = find_user(user_tele_id)
             support = db.Support(user_id=user.id)
             db.session.add(support)
-            db.session.commit()
+            db.session.commit()"""
 
     bot.send_message(message.chat.id, "Привет, я - Эдик, бот, созданный чтобы помогать людям учиться (^_^)")
     sleep(3)
@@ -79,14 +79,14 @@ def plans(message):
     plans_list = db.session.query(db.Plans).filter(db.Plans.user_id == find_user(message.from_user.id).id)
     bot.send_message(message.chat.id, "Вот список твоих планов:\n")
 
+@bot.message_handler(commands=['dev'])
+def dev(message):
+    db.update_tables
+
 @bot.message_handler(func=que_handler)
 def quesion(message):
     bot.send_message(message.chat.id, "quesion")
     bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO
-
-@bot.message_handler(commands=['dev'])
-def dev(message):
-    db.update_tables
 
 if __name__ == '__main__':
     bot.polling(none_stop=True, interval=0) #Starting the bot
