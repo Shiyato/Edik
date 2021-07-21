@@ -9,7 +9,12 @@ import os, db
 # Bot's message handlers
 bot = TeleBot(token) # Creating a bot object
 
-@bot.message_handler(func=lambda message: message.id - 1 == db.session.query(db.Support).filter(db.Support.user_id == message.from_user.id).first().last_quesion_id)
+def que_handler(message):
+    user_id = message.from_user.id
+    support = db.session.query(db.Support).filter(db.Support.user_id == user_id).first()
+    return support.last_quesion_id == message.message_id - 1
+
+@bot.message_handler(func=que_handler)
 def quesion(message):
     bot.send_message(message.chat.id, "quesion")
     bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO
