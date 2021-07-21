@@ -3,11 +3,22 @@ from sqlalchemy import create_engine
 from PIL import Image
 from time import sleep
 from telebot import TeleBot, types
+from flask import Flask
 import os, db
 
+# Code for waking up a heroku dynos
 
+wake = Flask(__name__)
+
+@wake.route('/', methods=['GET'])
+def wake_app():
+    return "<h1>Go to @self_education_ru_bot for use the bot</h1 style='text-align:center'>"
+
+
+
+
+# Bot's message handlers
 bot = TeleBot(token) # Creating a bot object
-
 
 @bot.message_handler(commands=['start'])
 def start(message):
