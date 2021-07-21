@@ -12,7 +12,7 @@ bot = TeleBot(token) # Creating a bot object
 def que_handler(message):
     user_id = message.from_user.id
     support = db.session.query(db.Support).filter(db.Support.user_id == user_id).first()
-    return support.last_quesion_id == message.message_id - 1
+    return support.last_quesion_id == message.message_id - 1 if support else False
 
 @bot.message_handler(func=que_handler)
 def quesion(message):
