@@ -13,14 +13,13 @@ def find_user(username):
     return db.session.query(db.User).filter(db.User.username == username).first()
 
 def que_handler(message):
-    user_id = find_user(message.from_user.username).id
-    support = db.session.query(db.Support).filter(db.Support.user_id == user_id).first()
-    return support.last_quesion_id == message.message_id - 1 if support else False
-
-@bot.message_handler(func=que_handler)
-def quesion(message):
-    bot.send_message(message.chat.id, "quesion")
-    bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO
+    user = find_user(message.from_user.username)
+    if not user:
+        return False
+    else:
+        user_id = user.id
+        support = db.session.query(db.Support).filter(db.Support.user_id == user_id).first()
+        return support.last_quesion_id == message.message_id - 1 if support else False
 
 
 @bot.message_handler(commands=['start'])
@@ -80,6 +79,11 @@ def aims(message):
 def plans(message):
     plans_list = db.session.query(db.Plans).filter(db.Plans.user_id == find_user(message.from_user.username).id)
     bot.send_message(message.chat.id, "Вот список твоих планов:\n")
+
+@bot.message_handler(func=que_handler)
+def quesion(message):
+    bot.send_message(message.chat.id, "quesion")
+    bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO
 
 if __name__ == '__main__':
     bot.polling(none_stop=True, interval=0) #Starting the bot
