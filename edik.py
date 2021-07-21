@@ -81,7 +81,7 @@ def plans(message):
 
 @bot.message_handler(commands=['dev'])
 def dev(message):
-    db.update_tables
+    db.update_tables()
 
 @bot.message_handler(func=que_handler)
 def quesion(message):
