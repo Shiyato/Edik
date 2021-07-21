@@ -25,15 +25,18 @@ def que_handler(message):
 def start(message):
     username = message.from_user.username
     user = find_user(username)
-
     if not user:
-        user_o = db.User(username=username)
-        db.session.add(user_o)
-        db.session.commit()
-        user = find_user(username)
-        support = db.Support(user_id=user.id)
-        db.session.add(support)
-        db.session.commit()
+        try:
+            user_o = db.User(username=username)
+            db.session.add(user_o)
+            db.session.commit()
+            user = find_user(username)
+            support = db.Support(user_id=user.id)
+            db.session.add(support)
+            db.session.commit()
+        except:
+            print(user, username)
+            bot.send_message(message.chat.id, "-- Ошибка сервера (T_T) --")
 
     bot.send_message(message.chat.id, "Привет, я - Эдик, бот, созданный чтобы помогать людям учиться (^_^)")
     sleep(3)
