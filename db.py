@@ -18,7 +18,7 @@ session = Session(bind=engine)
 class User(DataBase):
     __tablename__ = 'users'
     id = Column(Integer(), primary_key=True)
-    tele_id = Column(String(32), unique=True, nullable=False)
+    tele_id = Column(Integer(), unique=True, nullable=False)
 
 class Progress(DataBase):
     # Track a user's education part

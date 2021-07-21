@@ -78,7 +78,10 @@ def aims(message):
 def plans(message):
     plans_list = db.session.query(db.Plans).filter(db.Plans.user_id == find_user(message.from_user.id).id)
     bot.send_message(message.chat.id, "Вот список твоих планов:\n")
-    
+
+@bot.message_handler(commands=['dev'])
+def dev(message):
+    db.update_tables()
 
 @bot.message_handler(func=que_handler)
 def quesion(message):
