@@ -9,8 +9,11 @@ import os, db
 # Bot's message handlers
 bot = TeleBot(token) # Creating a bot object
 
+def find_user(username):
+    return db.session.query(db.User).filter(db.User.username == username).first()
+
 def que_handler(message):
-    user_id = message.from_user.id
+    user_id = find_user(message.from_user.username).id
     support = db.session.query(db.Support).filter(db.Support.user_id == user_id).first()
     return support.last_quesion_id == message.message_id - 1 if support else False
 
@@ -23,7 +26,7 @@ def quesion(message):
 @bot.message_handler(commands=['start'])
 def start(message):
     username = message.from_user.username
-    user_id = message.from_user.id
+    user_id = find_user(username).id
     user = db.session.query(db.User).filter(db.User.username == username).first()
 
     print("NEW START", user)
@@ -50,7 +53,7 @@ def help(message):
 @bot.message_handler(commands=['edu', 'e'])
 def education(message):
     username = message.from_user.username
-    user_id = message.from_user.id
+    user_id = find_user(username).id
     progress = db.session.query(db.Progress).filter(db.Progress.user_id == user_id).first()
 
     def new_edu():
@@ -75,7 +78,7 @@ def aims(message):
 
 @bot.message_handler(commands=['plans', 'p'])
 def plans(message):
-    plans_list = db.session.query(db.Plans).filter(db.Plans.user_id == message.from_user.id)
+    plans_list = db.session.query(db.Plans).filter(db.Plans.user_id == find_user(message.from_user.username).id)
     bot.send_message(message.chat.id, "Вот список твоих планов:\n")
 
 if __name__ == '__main__':
