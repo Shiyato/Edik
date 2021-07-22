@@ -25,13 +25,13 @@ class User(DataBase):
 class Progress(DataBase): # Track a user's education part
     __tablename__ = 'edu_progress'
     id = Column(Integer(), primary_key=True)
-    user_id = Column(Integer(), ForeignKey("users.id"), nullable=False, unique=True)
+    user_id = Column(Integer(), ForeignKey("users.id"), nullable=False)
     part_number = Column(Integer(), nullable=False, default=0)
 
 class Aims(DataBase):
     __tablename__ = 'aims'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer(), ForeignKey("users.id"), nullable=False, unique=True)
+    user_id = Column(Integer(), ForeignKey("users.id"), nullable=False)
     aim_name = Column(String(100), nullable=False)
     plan_id = Column(Integer(), ForeignKey("plans.id"))
     completed = Column(Boolean(), default=False)
@@ -39,14 +39,14 @@ class Aims(DataBase):
 class Plans(DataBase):
     __tablename__ = 'plans'
     id = Column(Integer(), primary_key=True)
-    user_id = Column(Integer(), ForeignKey("users.id"), nullable=False, unique=True)
+    user_id = Column(Integer(), ForeignKey("users.id"), nullable=False)
     plan_name = Column(String(100), nullable=False)
     completed = Column(Boolean())
 
 class PlansPoints(DataBase):
     __tablename__ = 'plans_points'
     id = Column(Integer(), primary_key=True)
-    plan_id = Column(Integer(), ForeignKey("plans.id"), nullable=False, unique=True)
+    plan_id = Column(Integer(), ForeignKey("plans.id"), nullable=False)
     number = Column(Integer(), nullable=False)
     text = Column(String(255))
     completed = Column(Boolean(), default=False)
