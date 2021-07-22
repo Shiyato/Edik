@@ -196,7 +196,7 @@ def quesion(message):
 
     if support.last_quesion_num == 'a1':
         add_aim(message)
-        bot.send_message(message.chat.id, "Цель сохранена!" + random.choice(["┏( ͡❛ ͜ʖ ͡❛)┛", "\( ͡❛ ͜ʖ ͡❛)/", "( ͡❛ ͜ʖ ͡❛)", "(>‿◠)✌"]))
+        bot.send_message(message.chat.id, "Цель сохранена! " + random.choice(["┏( ͡❛ ͜ʖ ͡❛)┛", "\( ͡❛ ͜ʖ ͡❛)/", "( ͡❛ ͜ʖ ͡❛)", "(>‿◠)✌"]))
 
 
 
