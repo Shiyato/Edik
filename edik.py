@@ -144,17 +144,22 @@ def plans(message):
     bot.send_message(message.chat.id, "Вот список твоих планов:\n")
     bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO education block choise
 
-@bot.message_handler(func=que_handler)
-def quesion(message):
-    bot.send_message(message.chat.id, "quesion")
-    bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO
-
 
 @bot.message_handler(commands=['dev', 'd'])
 def dev(message):
     if message.from_user.id == 870182558:
         db.update_tables()
         print(" -- TABLES UPDATED -- ")
+    else: 
+        print(" -- FAIL TABLES UPDATE -- ")
+
+
+@bot.message_handler(func=que_handler)
+def quesion(message):
+    bot.send_message(message.chat.id, "quesion")
+    bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO
+
+
 
 if __name__ == '__main__':
     bot.polling(none_stop=True, interval=0) #Starting the bot
