@@ -197,7 +197,7 @@ def quesion(message):
     support = db.session.query(db.Support).filter(db.Support.user_id == user.id).first()
 
     if support.last_quesion_num == 'a1':
-        add_aim(user.id, message)
+        add_aim(user.id, message.text)
         bot.send_message(message.chat.id, "Цель сохранена! " + random.choice(["┏( ͡❛ ͜ʖ ͡❛)┛", "\( ͡❛ ͜ʖ ͡❛)/", "( ͡❛ ͜ʖ ͡❛)", "(>‿◠)✌"]))
 
 
