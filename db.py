@@ -26,7 +26,6 @@ class Progress(DataBase):
     id = Column(Integer(), primary_key=True)
     user_id = Column(Integer(), ForeignKey("users.id"), nullable=False, unique=True)
     part_number = Column(Integer(), nullable=False, default=0)
-    edu_started = Column(Boolean(), nullable=False, default=True)
 
 class Aims(DataBase):
     __tablename__ = 'aims'
@@ -34,12 +33,14 @@ class Aims(DataBase):
     user_id = Column(Integer(), ForeignKey("users.id"), nullable=False, unique=True)
     aim_name = Column(String(100), nullable=False)
     plan_id = Column(Integer(), ForeignKey("plans.id"))
+    completed = Column(Boolean())
 
 class Plans(DataBase):
     __tablename__ = 'plans'
     id = Column(Integer(), primary_key=True)
     user_id = Column(Integer(), ForeignKey("users.id"), nullable=False, unique=True)
     plan_name = Column(String(100), nullable=False)
+    completed = Column(Boolean())
 
 class PlansPoints(DataBase):
     __tablename__ = 'plans_points'
@@ -47,6 +48,7 @@ class PlansPoints(DataBase):
     plan_id = Column(Integer(), ForeignKey("plans.id"), nullable=False, unique=True)
     number = Column(Integer(), nullable=False)
     text = Column(String(255))
+    completed = Column(Boolean())
 
 class Support(DataBase):
     __tablename__ = 'support_table'
