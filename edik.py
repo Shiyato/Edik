@@ -148,26 +148,26 @@ def aims(message):
             aims_text += '  ☆ ' + aim.aim_name + '\n'
         bot.send_message(message.chat.id, "Вот список твоих целей:\n" + aims_text)
     else: 
-        bot.send_message(message.chat.id, "У тебя ещё нет созранённых целей.\n")
+        bot.send_message(message.chat.id, "У тебя ещё нет сохранённых целей.\n")
 
     aims_help()
 
 @bot.message_handler(commands=['add_aim', 'aa'])
-def add_aim(message):
+def add_aim_h(message):
     user = find_user(message.from_user.id)
     support = db.session.query(db.Support).filter(db.Support.user_id == user.id).update({"last_quesion_id": message.message_id + 1, "last_quesion_num": "a1"}, synchronize_session='fetch')
     bot.send_message(message.chat.id, "Введи название цели:")
 
 
 @bot.message_handler(commands=['edit_aim', 'ea'])
-def edit_aim(message):
+def edit_aim_h(message):
     user = find_user(message.from_user.id)
     support = db.session.query(db.Support).filter(db.Support.user_id == user.id).update({"last_quesion_id": message.message_id + 1, "last_quesion_num": "a2"}, synchronize_session='fetch')
     bot.send_message(message.chat.id, "Выбери цель:")
     bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO
 
 @bot.message_handler(commands=['delete_aim', 'da'])
-def delete_aim(message):
+def delete_aim_h(message):
     user = find_user(message.from_user.id)
     support = db.session.query(db.Support).filter(db.Support.user_id == user.id).update({"last_quesion_id": message.message_id + 1, "last_quesion_num": "a3"}, synchronize_session='fetch')
     bot.send_message(message.chat.id, "Выбери цель:")
