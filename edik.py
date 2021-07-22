@@ -51,8 +51,8 @@ def delete_plan_point():
 
 # Aims functions
 
-def add_aim(text):
-    aim = db.Aims(aim_name=text)
+def add_aim(user_id, text ):
+    aim = db.Aims(user_id=user_id, aim_name=text)
     db.session.add(aim)
     db.session.commit()
 
@@ -131,7 +131,8 @@ def education(message):
         db.session.add(prog)
         db.session.commit()
         new_edu()
-    
+
+
 
 @bot.message_handler(commands=['aims', 'a'])
 def aims(message):
@@ -155,22 +156,23 @@ def aims(message):
 def add_aim(message):
     user = find_user(message.from_user.id)
     support = db.session.query(db.Support).filter(db.Support.user_id == user.id).update({"last_quesion_id": message.message_id + 1, "last_quesion_num": "a1"}, synchronize_session='fetch')
-    bot.send_message(message.chat.id, "Введите название цели:")
+    bot.send_message(message.chat.id, "Введи название цели:")
 
 
 @bot.message_handler(commands=['edit_aim', 'ea'])
 def edit_aim(message):
     user = find_user(message.from_user.id)
     support = db.session.query(db.Support).filter(db.Support.user_id == user.id).update({"last_quesion_id": message.message_id + 1, "last_quesion_num": "a2"}, synchronize_session='fetch')
-    bot.send_message(message.chat.id, "Выберите цель:")
+    bot.send_message(message.chat.id, "Выбери цель:")
     bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO
 
 @bot.message_handler(commands=['delete_aim', 'da'])
 def delete_aim(message):
     user = find_user(message.from_user.id)
     support = db.session.query(db.Support).filter(db.Support.user_id == user.id).update({"last_quesion_id": message.message_id + 1, "last_quesion_num": "a3"}, synchronize_session='fetch')
-    bot.send_message(message.chat.id, "Выберите цель:")
+    bot.send_message(message.chat.id, "Выбери цель:")
     bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO
+
 
 
 @bot.message_handler(commands=['plans', 'p'])
