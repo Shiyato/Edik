@@ -153,6 +153,7 @@ def quesion(message):
 @bot.message_handler(commands=['dev', 'd'])
 def dev(message):
     if message.from_user.id == 870182558:
+        db.update_tables()
         print(" -- TABLES UPDATED -- ")
 
 if __name__ == '__main__':

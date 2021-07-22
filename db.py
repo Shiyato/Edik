@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 
 # Connecting to database
+
 engine = create_engine(db_url)
 
 connection = engine.connect()
@@ -15,13 +16,13 @@ session = Session(bind=engine)
 
 
 # Creating a database models
+
 class User(DataBase):
     __tablename__ = 'users'
     id = Column(Integer(), primary_key=True)
     tele_id = Column(Integer(), unique=True, nullable=False)
 
-class Progress(DataBase):
-    # Track a user's education part
+class Progress(DataBase): # Track a user's education part
     __tablename__ = 'edu_progress'
     id = Column(Integer(), primary_key=True)
     user_id = Column(Integer(), ForeignKey("users.id"), nullable=False, unique=True)
@@ -33,7 +34,7 @@ class Aims(DataBase):
     user_id = Column(Integer(), ForeignKey("users.id"), nullable=False, unique=True)
     aim_name = Column(String(100), nullable=False)
     plan_id = Column(Integer(), ForeignKey("plans.id"))
-    completed = Column(Boolean())
+    completed = Column(Boolean(), default=False)
 
 class Plans(DataBase):
     __tablename__ = 'plans'
@@ -48,7 +49,7 @@ class PlansPoints(DataBase):
     plan_id = Column(Integer(), ForeignKey("plans.id"), nullable=False, unique=True)
     number = Column(Integer(), nullable=False)
     text = Column(String(255))
-    completed = Column(Boolean())
+    completed = Column(Boolean(), default=False)
 
 class Support(DataBase):
     __tablename__ = 'support_table'
@@ -58,7 +59,7 @@ class Support(DataBase):
     last_quesion_num = Column(Integer())
 
 
-# Function for updating all tables
-def update_tables():
+
+def update_tables(): # Function for updating all tables
     DataBase.metadata.drop_all(engine)
     DataBase.metadata.create_all(engine)
