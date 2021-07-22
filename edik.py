@@ -3,23 +3,23 @@ from sqlalchemy import create_engine
 from PIL import Image
 from time import sleep
 from telebot import TeleBot, types
-import os, db
+import os, db, random
 
 
 
 bot = TeleBot(token) # Creating a bot object
 
+#TODO Add a check of database entry values
 
-# Functions for databse queries
-
-def find_user(tele_id):
-    return db.session.query(db.User).filter(db.User.tele_id == tele_id).first()
-
+# Plans functions
 
 def add_plan(user_id, text):
     plan = db.Plans(plan_name=text, user_id=user_id)
     db.session.add(plan)
     db.session.commit()
+
+def update_plan(plan_id, text):
+    db.session.query(db.Plans).filter(db.Plans.id == plan_id).update({"plan_name" == text}, synchronize_session='fetch')
 
 def delete_plan(plan_id):
     plan = db.session.query(db.Plans).filter(db.Plans.id == plan_id).first()
@@ -29,6 +29,8 @@ def delete_plan(plan_id):
 def complete_plan():
     pass #TODO
 
+
+# Plans points functions
 
 def add_plan_point(plan_id, number):
     plan_points = db.session.query(db.PlansPoints).filter(db.PlansPoints.plan_id == plan_id).all()
@@ -47,6 +49,8 @@ def delete_plan_point():
     pass #TODO
 
 
+# Aims functions
+
 def add_aim(text):
     aim = db.Aims(aim_name=text)
     db.session.add(aim)
@@ -62,9 +66,12 @@ def complete_aim():
     pass #TODO
 
 
+# Find user function
+def find_user(tele_id):
+    return db.session.query(db.User).filter(db.User.tele_id == tele_id).first()
 
-# Bot's message handlers
 
+# Quesions handler function
 def que_handler(message):
     user = find_user(message.from_user.id)
     if user:
@@ -72,6 +79,10 @@ def que_handler(message):
         support = db.session.query(db.Support).filter(db.Support.user_id == user_id).first()
         if support: return support.last_quesion_id == message.message_id - 1
     return False
+
+
+
+# Bot's message handlers
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -128,21 +139,45 @@ def aims(message):
     aims = db.session.query(db.Aims).filter(db.Aims.user_id == user.id).all()
 
     def aims_help():
-        bot.send_message(message.chat.id, "__________________________________________\n • Если хочешь редактировать цели - используй /edit_aim или /ea\n • Если добавлять цели  /add_aim или /aa\n • Если хочешь удалять их - /del_aim или /da ")
+        bot.send_message(message.chat.id, "__________________________________________\n • Если хочешь добавить цель - используй /add_aim или /aa\n • Если хочешь редактировать цель - используй /edit_aim или /ea\n • Если хочешь удалить цель - используй /del_aim или /da")
 
     if aims:
         aims_text = ''
         for aim in aims:
             aims_text += '  ☆ ' + aim.aim_name + '\n'
         bot.send_message(message.chat.id, "Вот список твоих целей:\n" + aims_text)
-        aims_help()
+    else: 
+        bot.send_message(message.chat.id, "У тебя ещё нет созранённых целей.\n")
+
+    aims_help()
+
+@bot.message_handler(commands=['add_aim', 'aa'])
+def add_aim(message):
+    user = find_user(message.from_user.id)
+    support = db.session.query(db.Support).filter(db.Support.user_id == user.id).update({"last_quesion_id": message.message_id + 1, "last_quesion_num": "a1"}, synchronize_session='fetch')
+    bot.send_message(message.chat.id, "Введите название цели:")
+
+
+@bot.message_handler(commands=['edit_aim', 'ea'])
+def edit_aim(message):
+    user = find_user(message.from_user.id)
+    support = db.session.query(db.Support).filter(db.Support.user_id == user.id).update({"last_quesion_id": message.message_id + 1, "last_quesion_num": "a2"}, synchronize_session='fetch')
+    bot.send_message(message.chat.id, "Выберите цель:")
+    bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO
+
+@bot.message_handler(commands=['delete_aim', 'da'])
+def delete_aim(message):
+    user = find_user(message.from_user.id)
+    support = db.session.query(db.Support).filter(db.Support.user_id == user.id).update({"last_quesion_id": message.message_id + 1, "last_quesion_num": "a3"}, synchronize_session='fetch')
+    bot.send_message(message.chat.id, "Выберите цель:")
+    bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO
 
 
 @bot.message_handler(commands=['plans', 'p'])
 def plans(message):
     plans_list = db.session.query(db.Plans).filter(db.Plans.user_id == find_user(message.from_user.id).id)
     bot.send_message(message.chat.id, "Вот список твоих планов:\n")
-    bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO education block choise
+    bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO
 
 
 @bot.message_handler(commands=['dev', 'd'])
@@ -156,8 +191,12 @@ def dev(message):
 
 @bot.message_handler(func=que_handler)
 def quesion(message):
-    bot.send_message(message.chat.id, "quesion")
-    bot.send_message(message.chat.id, "-- Извините, эта часть чат бота ещё в разработке (T_T) --") #TODO
+    user = find_user(message.from_user.id)
+    support = db.session.query(db.Support).filter(db.Support.user_id == user.id).first()
+
+    if support.last_quesion_num == 'a1':
+        add_aim(message)
+        bot.send_message(message.chat.id, "Цель сохранена!" + random.choice(["┏( ͡❛ ͜ʖ ͡❛)┛", "\( ͡❛ ͜ʖ ͡❛)/", "( ͡❛ ͜ʖ ͡❛)", "(>‿◠)✌"]))
 
 
 
