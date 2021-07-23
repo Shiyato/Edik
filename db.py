@@ -63,8 +63,6 @@ class Support(DataBase):
     """
 
 
-
-
 def update_tables(): # Function for updating all tables
     DataBase.metadata.drop_all(engine)
     DataBase.metadata.create_all(engine)

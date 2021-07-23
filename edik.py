@@ -54,10 +54,7 @@ def delete_plan_point():
 
 # Aims functions
 
-def add_aim(chat_id, user_id, text):
-    if db.session.query(db.Aims).filter(db.Aims.user_id == user_id and db.Aims.aim_name == text):
-        bot.send_message(chat_id, "Прости, но целям нельзя давать одинаковые имена")
-    else:
+def add_aim(user_id, text):
         aim = db.Aims(user_id=user_id, aim_name=text)
         db.session.add(aim)
         db.session.commit()
@@ -71,8 +68,11 @@ def delete_aim():
 def complete_aim():
     pass #TODO
 
-def choise_aim(user_id, text):
-    return db.session.query(db.Aims).filter(db.Aims.user_id == user_id and db.Aims.aim_name == text)
+def choise_aim(user_id, text=None):
+    if text:
+        return db.session.query(db.Aims).filter(db.Aims.user_id == user_id and db.Aims.aim_name == text)
+    else:
+        return db.session.query(db.Aims).filter(db.Aims.user_id == user_id)
 
 
 # Find user function
@@ -172,12 +172,16 @@ def add_aim_h(message):
 def edit_aim_h(message):
     user = find_user(message.from_user.id)
     aims = db.session.query(db.Aims).filter(db.Aims.user_id == user.id).all()
-    set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "a2"})
-    markup = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True, selective=True)
-    for aim in aims:
-        aim_name = types.KeyboardButton(aim.aim_name)
-        markup.add(aim_name)
-    bot.send_message(message.chat.id, "Выбери цель:", reply_markup=markup)
+
+    if choise_aim(user.id).all(): 
+        set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "a2"})
+        markup = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True, selective=True)
+        for aim in aims:
+            aim_name = types.KeyboardButton(aim.aim_name)
+            markup.add(aim_name)
+        bot.send_message(message.chat.id, "Выбери цель:", reply_markup=markup)
+    else:
+        bot.send_message(message.chat.id, "Ты ещё не сохранял цели")
 
 @bot.message_handler(commands=['delete_aim', 'da'])
 def delete_aim_h(message):
@@ -211,8 +215,11 @@ def quesion(message):
     support = db.session.query(db.Support).filter(db.Support.user_id == user.id).first()
 
     if support.last_quesion_num == 'a1':
-        add_aim(message.chat.id, user.id, message.text)
-        bot.send_message(message.chat.id, "Цель сохранена! " + rand_smile)
+        if db.session.query(db.Aims).filter(db.Aims.user_id == user.id and db.Aims.aim_name == message.text).all():
+            bot.send_message(message.chat.id, "Прости, но целям нельзя давать одинаковые имена")
+        else:
+            add_aim(message.chat.id, user.id, message.text)
+            bot.send_message(message.chat.id, "Цель сохранена! " + rand_smile)
 
     if support.last_quesion_num == 'a2':
         set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "a2_1"})
