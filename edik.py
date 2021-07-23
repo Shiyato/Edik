@@ -165,7 +165,7 @@ def aims(message):
 def add_aim_h(message):
     user = find_user(message.from_user.id)
     set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "a1"})
-    bot.send_message(message.chat.id, "Введи название цели:")
+    bot.send_message(message.chat.id, "Введи цель:")
 
 
 @bot.message_handler(commands=['edit_aim', 'ea'])
@@ -218,7 +218,7 @@ def quesion(message):
         if db.session.query(db.Aims).filter(db.Aims.user_id == user.id and db.Aims.aim_name == message.text).all():
             bot.send_message(message.chat.id, "Прости, но целям нельзя давать одинаковые имена")
         else:
-            add_aim(message.chat.id, user.id, message.text)
+            add_aim(user.id, message.text)
             bot.send_message(message.chat.id, "Цель сохранена! " + rand_smile)
 
     if support.last_quesion_num == 'a2':
