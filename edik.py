@@ -221,13 +221,13 @@ def quesion(message):
             add_aim(user.id, message.text)
             bot.send_message(message.chat.id, "Цель сохранена! " + rand_smile)
 
-    if support.last_quesion_num == 'a2':
-        set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "a2_1"})
-        bot.send_message(message.chat.id, "Введи название:")
-
     if support.last_quesion_num == 'a2_1':
         edit_aim(aim_q, message.text)
         bot.send_message(message.chat.id, "Цель изменена! " + rand_smile)
+
+    if support.last_quesion_num == 'a2':
+        set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "a2_1"})
+        bot.send_message(message.chat.id, "Введи название:")
 
     if support.last_quesion_num == 'a3':
         pass
