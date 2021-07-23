@@ -173,7 +173,6 @@ def edit_aim_h(message):
     user = find_user(message.from_user.id)
     aims = db.session.query(db.Aims).filter(db.Aims.user_id == user.id).all()
     set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "a2"})
-
     markup = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True, selective=True)
     for aim in aims:
         aim_name = types.KeyboardButton(aim.aim_name)
@@ -207,7 +206,7 @@ def dev(message):
 @bot.message_handler(func=que_handler)
 def quesion(message):
     user = find_user(message.from_user.id)
-    aim_q = choise_aim(user, message.text)
+    aim_q = choise_aim(user.id, message.text)
     rand_smile = random.choice(["┏( ͡❛ ͜ʖ ͡❛)┛", "┌( ಠ‿ಠ)┘", "\( ͡❛ ͜ʖ ͡❛)/", "\(•◡•)/", "( ͡❛ ͜ʖ ͡❛)", "(>‿◠)✌", "ʕ•ᴥ•ʔ", "(◉◡◉)", "(◕‿◕)", "( ́ ◕◞ε◟◕`)", "(^ↀᴥↀ^)"])
     support = db.session.query(db.Support).filter(db.Support.user_id == user.id).first()
 
