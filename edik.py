@@ -149,7 +149,7 @@ def aims(message):
     aims = db.session.query(db.Aims).filter(db.Aims.user_id == user.id).all()
 
     def aims_help():
-        bot.send_message(message.chat.id, "__________________________________________\n • Если хочешь добавить цель - используй /add_aim или /aa\n • Если хочешь редактировать цель - используй /edit_aim или /ea\n • Если хочешь удалить цель - используй /del_aim или /da")
+        bot.send_message(message.chat.id, " • Если хочешь добавить цель - используй /add_aim или /aa\n • Если хочешь редактировать цель - используй /edit_aim или /ea\n • Если хочешь удалить цель - используй /del_aim или /da")
 
     if aims:
         aims_text = ''
@@ -227,6 +227,5 @@ def quesion(message):
 
     
     
-
 if __name__ == '__main__':
     bot.polling(none_stop=True, interval=0) #Starting the bot
