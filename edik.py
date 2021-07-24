@@ -62,11 +62,16 @@ def add_aim(user_id, text):
 def edit_aim(aim_q, text):
     aim_q.update({"aim_name": text}, synchronize_session='fetch')
 
-def delete_aim():
-    pass #TODO
+def delete_aim(aim_q):
+    aim = aim_q.first()
+    db.session.delete(aim)
+    db.session.commit()
 
-def complete_aim():
-    pass #TODO
+def complete_aim(aim_q):
+    aim_q.update({"completed": True}, synchronize_session='fetch'))
+
+def uncomplete_aim(aim_q):
+    aim_q.update({"completed": False}, synchronize_session='fetch'))
 
 def choise_aim(user_id, text=None):
     if text:
@@ -154,7 +159,8 @@ def aims(message):
     if aims:
         aims_text = ''
         for aim in aims:
-            aims_text += '  ☆ ' + aim.aim_name + '\n'
+            star = '★' if aim.completed else '☆'
+            aims_text += f'  {star} ' + aim.aim_name + '\n'
         bot.send_message(message.chat.id, "Вот список твоих целей:\n" + aims_text)
     else: 
         bot.send_message(message.chat.id, "У тебя ещё нет сохранённых целей.\n")
@@ -186,8 +192,17 @@ def edit_aim_h(message):
 @bot.message_handler(commands=['delete_aim', 'da'])
 def delete_aim_h(message):
     user = find_user(message.from_user.id)
-    set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "a3"})
-    bot.send_message(message.chat.id, "Выбери цель:")
+    aims = db.session.query(db.Aims).filter(db.Aims.user_id == user.id).all()
+
+    if choise_aim(user.id).all(): 
+        set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "a3"})
+        markup = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True, selective=True)
+        for aim in aims:
+            aim_name = types.KeyboardButton(aim.aim_name)
+            markup.add(aim_name)
+        bot.send_message(message.chat.id, "Выбери цель:", reply_markup=markup)
+    else:
+        bot.send_message(message.chat.id, "Ты ещё не сохранял цели")
 
 
 
@@ -230,7 +245,7 @@ def quesion(message):
         bot.send_message(message.chat.id, "Введи название:")
 
     if support.last_quesion_num == 'a3':
-        pass
+        delete_aim()
 
     
     
