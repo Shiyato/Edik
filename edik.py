@@ -264,6 +264,7 @@ def quesion(message):
 
     if support.last_quesion_num == 'a1':
         if db.session.query(db.Aims).filter(db.Aims.user_id == user.id and db.Aims.aim_name == message.text).first():
+            print(db.session.query(db.Aims).filter(db.Aims.user_id == user.id and db.Aims.aim_name == message.text).first())
             bot.send_message(message.chat.id, "Прости, но целям нельзя давать одинаковые имена")
         else:
             add_aim(user.id, message.text)
