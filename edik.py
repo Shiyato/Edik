@@ -61,6 +61,7 @@ def add_aim(user_id, text):
 
 def edit_aim(aim_q, text):
     aim_q.update({"aim_name": text}, synchronize_session='fetch')
+    db.session.commit()
 
 def delete_aim(aim_q):
     aim = aim_q.first()
@@ -69,9 +70,11 @@ def delete_aim(aim_q):
 
 def complete_aim(aim_q):
     aim_q.update({"completed": True}, synchronize_session='fetch')
+    db.session.commit()
 
 def uncomplete_aim(aim_q):
     aim_q.update({"completed": False}, synchronize_session='fetch')
+    db.session.commit()
 
 def choise_aim(user_id, text=None):
     if text:
@@ -154,7 +157,7 @@ def aims(message):
     aims = db.session.query(db.Aims).filter(db.Aims.user_id == user.id).all()
 
     def aims_help():
-        bot.send_message(message.chat.id, " • Если хочешь добавить цель - используй /add_aim или /aa\n • Если хочешь редактировать цель - используй /edit_aim или /ea\n • Если хочешь удалить цель - используй /del_aim или /da")
+        bot.send_message(message.chat.id, " • Если хочешь добавить цель - используй /add_aim или /aa\n • Если хочешь редактировать цель - используй /edit_aim или /ea\n • Если хочешь удалить цель - используй /del_aim или /da\n • Если хочешь выполнить цель - используй /complete_aim или /ca\n • Если хочешь, чтобы цель была невыполнена - используй /uncomplete_aim или /ua")
 
     if aims:
         aims_text = ''
@@ -196,6 +199,36 @@ def delete_aim_h(message):
 
     if choise_aim(user.id).all(): 
         set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "a3"})
+        markup = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True, selective=True)
+        for aim in aims:
+            aim_name = types.KeyboardButton(aim.aim_name)
+            markup.add(aim_name)
+        bot.send_message(message.chat.id, "Выбери цель:", reply_markup=markup)
+    else:
+        bot.send_message(message.chat.id, "Ты ещё не сохранял цели")
+
+@bot.message_handler(commands=['complete_aim', 'ca'])
+def edit_aim_h(message):
+    user = find_user(message.from_user.id)
+    aims = db.session.query(db.Aims).filter(db.Aims.user_id == user.id).all()
+
+    if choise_aim(user.id).all(): 
+        set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "a4"})
+        markup = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True, selective=True)
+        for aim in aims:
+            aim_name = types.KeyboardButton(aim.aim_name)
+            markup.add(aim_name)
+        bot.send_message(message.chat.id, "Выбери цель:", reply_markup=markup)
+    else:
+        bot.send_message(message.chat.id, "Ты ещё не сохранял цели")
+
+@bot.message_handler(commands=['uncomplete_aim', 'ua'])
+def edit_aim_h(message):
+    user = find_user(message.from_user.id)
+    aims = db.session.query(db.Aims).filter(db.Aims.user_id == user.id).all()
+
+    if choise_aim(user.id).all(): 
+        set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "a5"})
         markup = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True, selective=True)
         for aim in aims:
             aim_name = types.KeyboardButton(aim.aim_name)
@@ -246,12 +279,15 @@ def quesion(message):
 
     if support.last_quesion_num == 'a3':
         delete_aim(aim_q)
+        bot.send_message(message.chat.id, "Цель удалена! " + rand_smile)
 
     if support.last_quesion_num == 'a4':
         complete_aim(aim_q)
+        bot.send_message(message.chat.id, "Цель выпонена! " + rand_smile)
 
     if support.last_quesion_num == 'a5':
         uncomplete_aim(aim_q)
+        bot.send_message(message.chat.id, "Теперь цель не выпонена! " + rand_smile)
 
     
     
