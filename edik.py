@@ -68,10 +68,10 @@ def delete_aim(aim_q):
     db.session.commit()
 
 def complete_aim(aim_q):
-    aim_q.update({"completed": True}, synchronize_session='fetch'))
+    aim_q.update({"completed": True}, synchronize_session='fetch')
 
 def uncomplete_aim(aim_q):
-    aim_q.update({"completed": False}, synchronize_session='fetch'))
+    aim_q.update({"completed": False}, synchronize_session='fetch')
 
 def choise_aim(user_id, text=None):
     if text:
@@ -245,7 +245,13 @@ def quesion(message):
         bot.send_message(message.chat.id, "Введи название:")
 
     if support.last_quesion_num == 'a3':
-        delete_aim()
+        delete_aim(aim_q)
+
+    if support.last_quesion_num == 'a4':
+        complete_aim(aim_q)
+
+    if support.last_quesion_num == 'a5':
+        uncomplete_aim(aim_q)
 
     
     
