@@ -78,7 +78,7 @@ def uncomplete_aim(aim_q):
 
 def choise_aim(user_id, text=None):
     if text:
-        return db.session.query(db.Aims).filter(db.Aims.user_id == user_id and db.Aims.aim_name == text)
+        return db.session.query(db.Aims).filter(db.Aims.user_id == user_id).filter(db.Aims.aim_name == text)
     else:
         return db.session.query(db.Aims).filter(db.Aims.user_id == user_id)
 
@@ -163,7 +163,7 @@ def aims(message):
         aims_text = ''
         for aim in aims:
             star = '★' if aim.completed else '☆'
-            aims_text += f'  {star} ' + aim.aim_name + '\n'
+            aims_text += f'  {star} {aim.aim_name}\n'
         bot.send_message(message.chat.id, "Вот список твоих целей:\n" + aims_text)
     else: 
         bot.send_message(message.chat.id, "У тебя ещё нет сохранённых целей.\n")
@@ -263,7 +263,7 @@ def quesion(message):
     support = db.session.query(db.Support).filter(db.Support.user_id == user.id).first()
 
     if support.last_quesion_num == 'a1':
-        if db.session.query(db.Aims).filter(db.Aims.user_id == user.id).filter(db.Aims.aim_name == message.text).first():
+        if aim_q.first():
             bot.send_message(message.chat.id, "Прости, но целям нельзя давать одинаковые имена")
         else:
             add_aim(user.id, message.text)
@@ -289,7 +289,6 @@ def quesion(message):
         uncomplete_aim(aim_q)
         bot.send_message(message.chat.id, "Теперь цель не выпонена! " + rand_smile)
 
-    
     
 if __name__ == '__main__':
     bot.polling(none_stop=True, interval=0) #Starting the bot
