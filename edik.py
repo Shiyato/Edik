@@ -157,7 +157,7 @@ def aims(message):
     aims = db.session.query(db.Aims).filter(db.Aims.user_id == user.id).all()
 
     def aims_help():
-        bot.send_message(message.chat.id, " • Если хочешь добавить цель - используй /add_aim или /aa\n • Если хочешь редактировать цель - используй /edit_aim или /ea\n • Если хочешь удалить цель - используй /del_aim или /da\n • Если хочешь выполнить цель - используй /complete_aim или /ca\n • Если хочешь, чтобы цель была невыполнена - используй /uncomplete_aim или /ua")
+        bot.send_message(message.chat.id, " • Если хочешь добавить цель - используй /add_aim или /aa\n • Если хочешь редактировать цель - используй /edit_aim или /ea\n • Если хочешь удалить цель - используй /del_aim или /da\n • Если хочешь выполнить цель - используй /complete_aim или /ca\n • Если хочешь, чтобы цель не была выполнена - используй /uncomplete_aim или /ua")
 
     if aims:
         aims_text = ''
@@ -263,7 +263,7 @@ def quesion(message):
     support = db.session.query(db.Support).filter(db.Support.user_id == user.id).first()
 
     if support.last_quesion_num == 'a1':
-        if db.session.query(db.Aims).filter(db.Aims.user_id == user.id and db.Aims.aim_name == message.text).all():
+        if db.session.query(db.Aims).filter(db.Aims.user_id == user.id and db.Aims.aim_name == message.text).first():
             bot.send_message(message.chat.id, "Прости, но целям нельзя давать одинаковые имена")
         else:
             add_aim(user.id, message.text)
