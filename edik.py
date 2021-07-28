@@ -19,6 +19,15 @@ def que_handler(message):
 
 # Bot's message handlers
 
+@bot.message_handler(commands=['dev', 'd'])
+def dev(message):
+    if message.from_user.id == 870182558:
+        db.update_tables()
+        print(" -- TABLES UPDATED -- ")
+    else:
+        print(" -- FAIL TABLES UPDATE -- ")
+
+
 @bot.message_handler(commands=['start'])
 def start(message):
     user_tele_id = message.from_user.id
@@ -270,15 +279,6 @@ def uncomplete_plan_h(message):
         bot.send_message(message.chat.id, "Выбери план:", reply_markup=markup)
     else:
         bot.send_message(message.chat.id, "Ты ещё не сохранял планы")
-
-
-@bot.message_handler(commands=['dev', 'd'])
-def dev(message):
-    if message.from_user.id == 870182558:
-        db.update_tables()
-        print(" -- TABLES UPDATED -- ")
-    else:
-        print(" -- FAIL TABLES UPDATE -- ")
 
 
 @bot.message_handler(func=que_handler)
