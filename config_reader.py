@@ -1,5 +1,6 @@
 import os
-token = os.environ['token']
+
+bot_token = os.environ['TOKEN']
 
 try:
     db_url = os.environ['DATABASE_URL']
