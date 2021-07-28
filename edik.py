@@ -291,17 +291,8 @@ def quesion(message):
          "( ́ ◕◞ε◟◕`)", "(^ↀᴥↀ^)"])
     support = db.session.query(db.Support).filter(db.Support.user_id == user.id).first()
 
-    def plan_points_help():
-        bot.send_message(message.chat.id, " • Если хочешь добавить пункт - используй /add_plan или /ap\n\n" +
-                         "• Если хочешь редактировать пункт - используй /edit_plan или /ep\n\n" +
-                         "• Если хочешь удалить пункт - используй /del_plan или /dp\n\n" +
-                         "• Если хочешь выполнить пункт - используй /complete_plan или /cp\n\n" +
-                         "• Если хочешь, чтобы пункт не был выполнен" +
-                         " - используй /uncomplete_plan или /up")
-
     def plan_edit():
-        bot.send_message(message.chat.id, "Добавь пункты своему плану!")
-
+        bot.send_message(message.chat.id, "Добавь пункты своему плану!") # TODO make an inline menu
 
     if support.last_quesion_num == 'a1':
         if aim_q.first():

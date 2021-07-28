@@ -58,6 +58,7 @@ class PlansPoints(DataBase):
 class Support(DataBase):
     __tablename__ = 'support_table'
     user_id = Column(Integer(), ForeignKey("users.id"), primary_key=True)
+    plan_points_work = Column(Boolean(), default=False)
     last_quesion_id = Column(Integer())
     last_quesion_num = Column(String(5))
     """ Quesion numbers:
