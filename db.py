@@ -58,7 +58,8 @@ class PlansPoints(DataBase):
 class Support(DataBase):
     __tablename__ = 'support_table'
     user_id = Column(Integer(), ForeignKey("users.id"), primary_key=True)
-    plan_points_work = Column(Boolean(), default=False)
+    choised_plan_point_num = Column(Integer())
+    choised_plan_id = Column(Integer())
     last_quesion_id = Column(Integer())
     last_quesion_num = Column(String(5))
     """ Quesion numbers:
@@ -69,7 +70,7 @@ class Support(DataBase):
     a5 - aim uncomplete
     
     p1 - plan add
-    p2 - plan update
+    p2 - plan edit
     p3 - plan delete
     p4 - plan complete
     p5 - plan uncomplete
@@ -95,12 +96,12 @@ def add_plan(user_id, text):
     session.commit()
 
 
-def edit_plan(plan_q, text):
+def edit_plan_name(plan_q, text):
     plan_q.update({"plan_name": text}, synchronize_session='fetch')
     session.commit()
 
 
-def delete_aim(plan_q):
+def delete_plan(plan_q):
     plan = plan_q.first()
     session.delete(plan)
     session.commit()
@@ -118,7 +119,7 @@ def uncomplete_plan(plan_q):
 
 # Plans points functions
 
-def add_plan_point(plan_id, number):
+def add_plan_point(plan_id, number, text):
     plan_points = session.query(PlansPoints).filter(PlansPoints.plan_id == plan_id)
 
     if plan_points.filter(PlansPoints.number == number + 1).first():
@@ -129,17 +130,34 @@ def add_plan_point(plan_id, number):
     elif plan_points.filter(PlansPoints.number == number).first():
         plan_points.filter(PlansPoints.number == number).update({"number": number + 1}, synchronize_session='fetch')
 
-    plan_point = PlansPoints(plan_id=plan_id, number=number)
+    plan_point = PlansPoints(plan_id=plan_id, number=number, text=text)
     session.add(plan_point)
     session.commit()
 
 
-def edit_plan_point():
-    pass  # TODO
+def edit_plan_point(plan_id, number, text):
+    session.query(PlansPoints).filter(
+        PlansPoints.plan_id == plan_id and PlansPoints.number == number).update({"text": text},
+                                                                                synchronize_session='fetch')
+    session.commit()
 
 
-def delete_plan_point():
-    pass  # TODO
+def delete_plan_point(plan_id, number):
+    plan_point = session.query(PlansPoints).filter(PlansPoints.plan_id == plan_id and PlansPoints.number == number).first()
+    session.delete(plan_point)
+    session.commit()
+
+
+def complete_plan_point(plan_id, number):
+    plan_point = session.query(PlansPoints).filter(
+        PlansPoints.plan_id == plan_id and PlansPoints.number == number).update({"completed": True},
+                                                                                synchronize_session='fetch')
+
+
+def uncomplete_plan_point(plan_id, number):
+    plan_point = session.query(PlansPoints).filter(
+        PlansPoints.plan_id == plan_id and PlansPoints.number == number).update({"completed": False},
+                                                                                synchronize_session='fetch')
 
 
 # Aims functions
