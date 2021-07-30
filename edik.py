@@ -6,14 +6,21 @@ import db
 bot = TeleBot(bot_token)  # Creating a bot object
 
 
-# Quesions handler function
+#TODO Ограницения для планов, целей, пунктов планов. Проверка входящих в БД данных. Выбор блока обучения.
+
+# Handler functions
 def que_handler(message):
     user = db.find_user(message.from_user.id)
     if user:
-        user_id = user.id
-        support = db.session.query(db.Support).filter(db.Support.user_id == user_id).first()
+        support = db.session.query(db.Support).filter(db.Support.user_id == user.id).first()
         if support: return support.last_quesion_id == message.message_id - 1
     return False
+
+
+def next_handler(message):
+    user = db.find_user(message.from_user.id)
+    support = db.session.query(db.Support).filter(db.Support.user_id == user.id).first()
+    return True if support.last_quesion_num[0] == "n" else False
 
 
 # Bot's message handlers
@@ -41,8 +48,8 @@ def start(message):
 
 @bot.message_handler(commands=['help', 'h'])
 def help(message):
-    bot.send_message(message.chat.id, "Моя основная задача - это рассказать тебе о персональной модели обучения(ПМО)" +
-                     " и повысить эффективность твоего обучения.\n\n" +
+    bot.send_message(message.chat.id, "Моя основная задача - это помочь тебе с " +
+                     "повышением эффективности твоего обучения.\n\n" +
                      "• Если хочешь начать, используй /edu или /e\n" +
                      "__________________________________________\n\n" +
                      "Также я могу помочь с постановкой твоих личных целей " +
@@ -56,25 +63,26 @@ def help(message):
 @bot.message_handler(commands=['edu', 'e'])
 def education(message):
     user_tele_id = message.from_user.id
-    user_id = db.find_user(user_tele_id).id
-    progress = db.session.query(db.Progress).filter(db.Progress.user_id == user_id).first()
+    user = db.find_user(user_tele_id)
+    progress = db.session.query(db.Progress).filter(db.Progress.user_id == user.id).first()
 
-    def new_edu():
-        bot.send_message(message.chat.id, "Итак, начнём")
-        bot.send_message(message.chat.id, "Для начала, вспомни о том, чему ты хочешь научиться. ")
-        bot.send_message(message.chat.id,
-                         "-- Извините, эта часть чат бота ещё в разработке (T_T) --")  # TODO education block choise
+    def edu_start():
+        bot.send_message(message.chat.id, "Итак, начнём. Если захочешь остановиться отправь мне назад")
+        bot.send_message(message.chat.id, "Для начала, вспомни то чему ты хочешь научиться," +
+                                          " то чего ты хочешь достичь и то, зачем оно тебе надо." +
+                                          " От твоей мотивации зависит, как быстро ты этого добьёшься" +
+                                          " и добьёшься ли вообще")
+        bot.send_message(message.chat.id, " * Чтобы продолжать отправляй любое сообщение, кроме команд.")
+        db.set_support(user.id, {"last_quesion_num": "n1"})
 
     if progress:
         bot.send_message(message.chat.id,
                          f"Выбери блок с которого хочешь продолжить. (Ты остановился на блоке {progress.part_number}) ")
-        bot.send_message(message.chat.id,
-                         "-- Извините, эта часть чат бота ещё в разработке (T_T) --")  # TODO education block choise
     else:
-        prog = db.Progress(part_number=1)
+        prog = db.Progress(user_id=user.id)
         db.session.add(prog)
         db.session.commit()
-        new_edu()
+        edu_start()
 
 
 @bot.message_handler(commands=['aims', 'a'])
@@ -280,6 +288,62 @@ def dev(message):
         print(" -- FAIL TO UPDATE TABLES -- ")
 
 
+@bot.message_handler(func=next_handler)
+def next(message):
+    user = db.find_user(message.from_user.id)
+    support = db.session.query(db.Support).filter(db.Support.user_id == user.id).first()
+
+    if message.text.lower() == 'назад':
+        db.set_support(user.id, {"last_quesion_num": "0"})
+
+    if support.last_quesion_num == "n1":
+        db.set_support(user.id, {"last_quesion_num": "n2"})
+        bot.send_message(message.chat.id, "Самое важное, что нужно сделать для успешного обучения" +
+                                          " - это поставить конктретную цель, " +
+                                          "учитывая время которое ты потратишь на её выполнение, " +
+                                          "поставить себе жёсткие временные рамки.")
+
+    if support.last_quesion_num == "n2":
+        db.set_support(user.id, {"last_quesion_num": "n3"})
+        bot.send_message(message.chat.id, "Далее нужно разбить цель на этапы, то есть составить план. " +
+                                          "План нужно выполнять постепенно, " +
+                                          "а также решить сколько времени ты потратишь на выполнение каждого этапа")
+
+    if support.last_quesion_num == "n3":
+        db.set_support(user.id, {"last_quesion_num": "n4"})
+        bot.send_message(message.chat.id, "Также нужно решить сколько времени на " +
+                                          "обучение ты будешь тратить в неделю. " +
+                                          "Например: 'я буду заниматься по 1 часу каждый день' или " +
+                                          "'я буду заниматься по 2 часа каждые понедельник, среду и пятницу" +
+                                          "От кол-ва выденного времени, зависит скорость обучения.")
+
+    if support.last_quesion_num == "n3":
+        db.set_support(user.id, {"last_quesion_num": "n4"})
+        bot.send_message(message.chat.id, "Не забывай отдыхать! Пик концентрации человека наступает через 45 минут " +
+                         "выполнения какой-либо работы, " +
+                         "в идеале нужно отдыхать от учёбы по прошествии " +
+                         "этого времени хотя-бы 15 мин.")
+
+    if support.last_quesion_num == "n4":
+        db.set_support(user.id, {"last_quesion_num": "n5"})
+        bot.send_message(message.chat.id, "Тчательно выбирай материалы для получения информации: " +
+                                          "если тебя неустраивают источники с помощью которых ты учишься, "
+                                          "то найди себе новые.\n" +
+                                          "В наше время найти какую либо информацию очень легко, " +
+                                          "ты можешь учиться с помощью книг, видеоуроков, курсов, " +
+                                          "статей в интернете, просто посещая занятия в своём " +
+                                          "образовательном учереждении и т.п")
+
+    if support.last_quesion_num == "n4":
+        db.set_support(user.id, {"last_quesion_num": "0"})
+        rand_smile = random.choice(
+            ["┏( ͡❛ ͜ʖ ͡❛)┛", "┌( ಠ‿ಠ)┘", "\( ͡❛ ͜ʖ ͡❛)/", "\(•◡•)/", "( ͡❛ ͜ʖ ͡❛)", "(>‿◠)✌", "ʕ•ᴥ•ʔ", "(◉◡◉)",
+             "(◕‿◕)", "( ́ ◕◞ε◟◕`)", "(^ↀᴥↀ^)"])
+        bot.send_message(message.chat.id, "Это всё, что я хотел тебе рассказать. " +
+                                          "Надеюсь эта информация поможет тебе и ты добьёшься успеха. " +
+                                          "Всё зависит лишь от тебя, удачи!" + rand_smile)
+
+
 @bot.message_handler(func=que_handler)
 def quesion(message):
     user = db.find_user(message.from_user.id)
@@ -291,17 +355,27 @@ def quesion(message):
     support = db.session.query(db.Support).filter(db.Support.user_id == user.id).first()
 
     pe_markup = types.ReplyKeyboardMarkup(row_width=1, one_time_keyboard=True, selective=True)
-    b1 = types.KeyboardButton("Добавить пункт")
-    b3 = types.KeyboardButton("Изменить название пункта")
+    b1 = types.KeyboardButton("Вписать пункт")
     b2 = types.KeyboardButton("Удалить пункт")
-    b4 = types.KeyboardButton("Выполнить пункт пункт")
-    b5 = types.KeyboardButton("Сделать пункт невыполненным")
-    b6 = types.KeyboardButton("Изменить название плана")
-    b7 = types.KeyboardButton("Назад")
-    pe_markup.add(b1, b2, b3, b4, b5, b6, b7)
+    b3 = types.KeyboardButton("Выполнить пункт")
+    b4 = types.KeyboardButton("Сделать пункт невыполненным")
+    b5 = types.KeyboardButton("Изменить название плана")
+    b6 = types.KeyboardButton("Назад")
+    pe_markup.add(b1, b2, b3, b4, b5, b6)
+
+    def show_plan():
+        plan = db.session.query(db.Plans).filter(db.Plans.id == support.choised_plan_id).first()
+        plan_points = db.session.query(db.PlansPoints).filter(db.PlansPoints.plan_id == plan.id).all()
+        pp_text = f" ---  {plan.plan_name}  ---\n\n"
+        for plan_point in plan_points:
+            mark = "✓" if plan_point.completed else ""
+            pp_text += f"{plan_point.number}. {plan_point.text} {mark}\n\n"
+        db.set_support(user.id, {"last_quesion_id": support.last_quesion_id + 1})
+        bot.send_message(message.chat.id, pp_text)
 
     def pe():
         db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "pe"})
+        show_plan()
         bot.send_message(message.chat.id, "Выбери действие:", reply_markup=pe_markup)
 
     if support.last_quesion_num == 'a1':
@@ -332,19 +406,18 @@ def quesion(message):
         bot.send_message(message.chat.id, "Теперь цель не выпонена! " + rand_smile)
 
     if support.last_quesion_num == 'pe':
-        if message.text == "Добавить пункт":
+        if message.text == "Вписать пункт":
             db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "pp1"})
-        elif message.text == "Изменить название пункта":
-            db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "pp2"})
         elif message.text == "Удалить пункт":
             db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "pp3"})
-        elif message.text == "Выполнить  пункт":
+        elif message.text == "Выполнить пункт":
             db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "pp4"})
-        elif message.text == "Удалить пункт":
+        elif message.text == "Сделать пункт невыполненным":
             db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "pp5"})
         elif message.text == "Изменить название плана":
             db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "p2_1"})
-        bot.send_message(message.chat.id, "План изменён! " + rand_smile)
+        else:
+            bot.send_message(message.chat.id, "Возвращаюсь назад " + rand_smile)
 
     if support.last_quesion_num == 'p1':
         if plan_q.first():
@@ -353,11 +426,13 @@ def quesion(message):
             db.add_plan(user.id, message.text)
             plan = plan_q.first()
             bot.send_message(message.chat.id, "План сохранён! " + rand_smile)
-            db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "pe",
+            db.set_support(user.id, {"last_quesion_id": message.message_id + 2, "last_quesion_num": "pe",
                                      "choised_plan_id": plan.id})
+            show_plan()
             bot.send_message(message.chat.id, "Добавь пункты своему плану:", reply_markup=pe_markup)
 
     if support.last_quesion_num == 'p2_2':
+        plan_q = db.session.query(db.Plans).filter(db.Plans.id == support.choised_plan_id)
         db.edit_plan_name(plan_q, message.text)
         bot.send_message(message.chat.id, "Название плана изменено! " + rand_smile)
         pe()
@@ -370,6 +445,7 @@ def quesion(message):
         plan = plan_q.first()
         db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "pe",
                                  "choised_plan_id": plan.id})
+        show_plan()
         bot.send_message(message.chat.id, "Выбери действие:", reply_markup=pe_markup)
 
     if support.last_quesion_num == 'p3':
@@ -387,6 +463,7 @@ def quesion(message):
     if support.last_quesion_num == 'pp1_2':
         db.add_plan_point(support.choised_plan_id, support.choised_plan_point_num, message.text)
         bot.send_message(message.chat.id, "Пункт добавлен!")
+        pe()
 
     if support.last_quesion_num == 'pp1_1':
         try:
@@ -394,30 +471,13 @@ def quesion(message):
                                      "choised_plan_point_num": int(message.text)})
             bot.send_message(message.chat.id, "Введи название пункта:")
         except:
-            bot.send_message(message.chat.id, "Невозможный номер пункта!")
+            bot.send_message(message.chat.id, "Невозможный/Неправильный номер пункта!")
+            db.set_support(user.id, {"last_quesion_id": support.last_quesion_id + 1})
             pe()
 
     if support.last_quesion_num == 'pp1':
         db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "pp1_1"})
-        bot.send_message(message.chat.id, "Введи номер пункта:")
-
-    if support.last_quesion_num == 'pp2_2':
-        db.edit_plan_point(support.choised_plan_id, support.choised_plan_point_num, message.text)
-        bot.send_message(message.chat.id, "Название пункта изменено! " + rand_smile)
-        pe()
-
-    if support.last_quesion_num == 'pp2_1':
-        try:
-            db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "pp2_2",
-                                     "choised_plan_num": int(message.text)})
-            bot.send_message(message.chat.id, "Введи название пункта:")
-        except:
-            bot.send_message(message.chat.id, "Невозможный номер пункта!")
-            pe()
-
-    if support.last_quesion_num == 'pp2':
-        db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "pp2_1"})
-        bot.send_message(message.chat.id, "Введи номер пункта:")
+        bot.send_message(message.chat.id, "Введи будущий номер пункта:")
 
     if support.last_quesion_num == 'pp3_1':
         try:
@@ -425,11 +485,13 @@ def quesion(message):
             bot.send_message(message.chat.id, "Пункт удален! " + rand_smile)
             pe()
         except:
-            bot.send_message(message.chat.id, "Невозможный номер пункта!")
+            bot.send_message(message.chat.id, "Невозможный/Неправильный номер пункта!")
+            db.set_support(user.id, {"last_quesion_id": support.last_quesion_id + 1})
             pe()
 
     if support.last_quesion_num == 'pp3':
-
+        db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "pp3_1"})
+        bot.send_message(message.chat.id, "Введи номер пункта:")
 
     if support.last_quesion_num == 'pp4_1':
         try:
@@ -437,11 +499,12 @@ def quesion(message):
             bot.send_message(message.chat.id, "Пункт выпонен! " + rand_smile)
             pe()
         except:
-            bot.send_message(message.chat.id, "Невозможный номер пункта!")
+            bot.send_message(message.chat.id, "Невозможный/Неправильный номер пункта!")
+            db.set_support(user.id, {"last_quesion_id": support.last_quesion_id + 1})
             pe()
 
     if support.last_quesion_num == 'pp4':
-        db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "pp2_1"})
+        db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "pp4_1"})
         bot.send_message(message.chat.id, "Введи номер пункта:")
 
     if support.last_quesion_num == 'pp5_1':
@@ -450,11 +513,12 @@ def quesion(message):
             bot.send_message(message.chat.id, "Теперь пункт теперь не выпонен! " + rand_smile)
             pe()
         except:
-            bot.send_message(message.chat.id, "Невозможный номер пункта!")
+            bot.send_message(message.chat.id, "Невозможный/Неправильный номер пункта!")
+            db.set_support(user.id, {"last_quesion_id": support.last_quesion_id + 1})
             pe()
 
     if support.last_quesion_num == 'pp5':
-        db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "pp2_1"})
+        db.set_support(user.id, {"last_quesion_id": message.message_id + 1, "last_quesion_num": "pp5_1"})
         bot.send_message(message.chat.id, "Введи номер пункта:")
 
 
