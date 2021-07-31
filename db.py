@@ -33,7 +33,7 @@ class Aims(DataBase):
     __tablename__ = 'aims'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer(), ForeignKey("users.id"), nullable=False)
-    aim_name = Column(String(100), nullable=False)
+    aim_name = Column(String(255), nullable=False)
     plan_id = Column(Integer(), ForeignKey("plans.id"))
     completed = Column(Boolean(), default=False)
 
@@ -42,7 +42,7 @@ class Plans(DataBase):
     __tablename__ = 'plans'
     id = Column(Integer(), primary_key=True)
     user_id = Column(Integer(), ForeignKey("users.id"), nullable=False)
-    plan_name = Column(String(100), nullable=False)
+    plan_name = Column(String(255), nullable=False)
     completed = Column(Boolean())
 
 
@@ -62,7 +62,9 @@ class Support(DataBase):
     choised_plan_id = Column(Integer())
     last_quesion_id = Column(Integer())
     last_quesion_num = Column(String(5))
-    """ Quesion numbers:
+
+    """ 
+    Quesion numbers:
     a1 - aim add
     a2 - aim update
     a3 - aim delete
@@ -81,6 +83,9 @@ class Support(DataBase):
     pp5 - plan point uncomplete
     
     n - next education message
+    nc - education block choise
+    
+    0 - nothing
     """
 
 
@@ -147,15 +152,15 @@ def delete_plan_point(plan_id, number):
 
 
 def complete_plan_point(plan_id, number):
-    plan_point = session.query(PlansPoints).filter(
-        PlansPoints.plan_id == plan_id).filter(PlansPoints.number== number).update({"completed": True},
-                                                                                   synchronize_session='fetch')
+    session.query(PlansPoints).filter(
+        PlansPoints.plan_id == plan_id).filter(PlansPoints.number == number).update({"completed": True},
+                                                                                    synchronize_session='fetch')
 
 
 def uncomplete_plan_point(plan_id, number):
-    plan_point = session.query(PlansPoints).filter(
-        PlansPoints.plan_id == plan_id).filter(PlansPoints.number== number).update({"completed": False},
-                                                                                   synchronize_session='fetch')
+    session.query(PlansPoints).filter(
+        PlansPoints.plan_id == plan_id).filter(PlansPoints.number == number).update({"completed": False},
+                                                                                    synchronize_session='fetch')
 
 
 # Aims functions
