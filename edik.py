@@ -13,14 +13,15 @@ def que_handler(message):
     user = db.find_user(message.from_user.id)
     if user:
         support = db.session.query(db.Support).filter(db.Support.user_id == user.id).first()
-        if support: return support.last_quesion_id == message.message_id - 1
+        if support:
+            return support.last_quesion_id == message.message_id - 1
     return False
 
 
 def next_handler(message):
     user = db.find_user(message.from_user.id)
     support = db.session.query(db.Support).filter(db.Support.user_id == user.id).first()
-    return True if support.last_quesion_num[0] == "n" else False
+    return support.last_quesion_num[0] == "n" if support.last_quesion_num else False
 
 
 # Bot's message handlers
