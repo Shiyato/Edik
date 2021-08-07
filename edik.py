@@ -287,7 +287,7 @@ def uncomplete_plan_h(message):
 
 @bot.message_handler(commands=['dev', 'd'])
 def dev(message):
-    if message.from_user.id == 870182558:
+    if len(message.from_user.id) == 870182558:
         db.update_tables()
         print(" -- TABLES UPDATED -- ")
     else:
@@ -372,7 +372,7 @@ def next(message):
 
 @bot.message_handler(func=que_handler)
 def quesion(message):
-    if message.text > 250:
+    if len(message.text) > 250:
         bot.send_message(message.chat.id, "Прости но максимальный размер сообщения 250 символов.")
     else:
         user = db.find_user(message.from_user.id)
